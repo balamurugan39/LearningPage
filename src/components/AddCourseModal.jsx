@@ -6,7 +6,8 @@ const AddCourseModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    thumbnail: null
+    thumbnailFile: null,
+    thumbnailPreview: null
   })
 
   const handleChange = (e) => {
@@ -17,15 +18,25 @@ const AddCourseModal = ({ onClose, onSubmit }) => {
   }
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0]
     setFormData({
       ...formData,
-      thumbnail: URL.createObjectURL(e.target.files[0])
+      thumbnailFile: file,
+      thumbnailPreview: file ? URL.createObjectURL(file) : null
     })
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit(formData)
+    // Create FormData for submission
+    const form = new FormData()
+    form.append('title', formData.title)
+    form.append('description', formData.description)
+    if (formData.thumbnailFile) {
+      form.append('thumbnail', formData.thumbnailFile)
+    }
+
+    onSubmit(form)
   }
 
   return (
@@ -63,9 +74,9 @@ const AddCourseModal = ({ onClose, onSubmit }) => {
               onChange={handleFileChange}
               required
             />
-            {formData.thumbnail && (
+            {formData.thumbnailPreview && (
               <img 
-                src={formData.thumbnail} 
+                src={formData.thumbnailPreview} 
                 alt="Preview" 
                 className="thumbnail-preview"
               />
