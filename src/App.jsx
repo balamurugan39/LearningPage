@@ -568,13 +568,15 @@ function App() {
                     <div key={`mycourse-${course.id}`} className="vertical-course-card">
                       <div className="course-media">
                         <img 
-                          src={course.thumbnail} 
-                          alt={course.name}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "https://placehold.co/300x200?text=Course+Image";
-                          }}
-                        />
+  src={course.thumbnailUrl}
+  alt={course.name}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://placehold.co/300x200?text=No+Image';
+  }}
+  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }}
+/>
+
                         <div className="progress-container">
                           <div className="progress-bar">
                             <div 
