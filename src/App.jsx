@@ -220,7 +220,7 @@ function App() {
               }}
             />
             <div className="branding-text">
-              <h1>Maestrominds</h1>
+              <h1>Maestro hub</h1>
               <p className="subtitle">Learning Platform</p>
             </div>
           </div>
