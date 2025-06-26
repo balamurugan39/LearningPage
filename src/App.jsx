@@ -4,20 +4,18 @@ import './index.css';
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [newCourse, setNewCourse] = useState({
-    name: '',
-    category: '',
-    description: '',
-    level: 'Beginner',
-    thumbnailFile: null,
-    sections: [{
-      title: '',
-      videos: [{ 
-        title: '', 
-        videoUrl: '',
-        duration: '' 
-      }]
-    }]
-  });
+  name: '',
+  category: '',
+  description: '',
+  level: 'Beginner',
+  instructor: '', // ✅ new field
+  thumbnailUrl: '', // ✅ new field
+  sections: [{
+    title: '',
+    videos: [{ title: '', videoUrl: '', duration: '' }]
+  }]
+});
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const thumbnailInputRef = useRef(null);
@@ -97,59 +95,65 @@ function App() {
 
   // Course Management
   const handleAddCourse = async () => {
-    if (!newCourse.name || !newCourse.category || !newCourse.description) {
-      alert('Please fill all required fields');
-      return;
-    }
+  if (
+    !newCourse.name ||
+    !newCourse.category ||
+    !newCourse.description ||
+    !newCourse.instructor ||
+    !newCourse.thumbnailUrl
+  ) {
+    alert('Please fill all required fields');
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append('name', newCourse.name);
-    formData.append('category', newCourse.category);
-    formData.append('description', newCourse.description);
-    formData.append('level', newCourse.level);
-    
-    if (newCourse.thumbnailFile) {
-      formData.append('thumbnail', newCourse.thumbnailFile);
-    }
+  const formData = new FormData();
+  formData.append('name', newCourse.name);
+  formData.append('category', newCourse.category);
+  formData.append('description', newCourse.description);
+  formData.append('level', newCourse.level);
+  formData.append('instructor', newCourse.instructor); // ✅ Added instructor
+  formData.append('thumbnailUrl', newCourse.thumbnailUrl); // ✅ Using URL instead of file
 
-    newCourse.sections.forEach((section, sectionIndex) => {
-      formData.append(`sections[${sectionIndex}][title]`, section.title);
-      section.videos.forEach((video, videoIndex) => {
-        formData.append(
-          `sections[${sectionIndex}][videos][${videoIndex}][videoUrl]`, 
-          video.videoUrl
-        );
-        formData.append(
-          `sections[${sectionIndex}][videos][${videoIndex}][title]`, 
-          video.title
-        );
-        formData.append(
-          `sections[${sectionIndex}][videos][${videoIndex}][duration]`, 
-          video.duration
-        );
-      });
+  newCourse.sections.forEach((section, sectionIndex) => {
+    formData.append(`sections[${sectionIndex}][title]`, section.title);
+    section.videos.forEach((video, videoIndex) => {
+      formData.append(
+        `sections[${sectionIndex}][videos][${videoIndex}][videoUrl]`,
+        video.videoUrl
+      );
+      formData.append(
+        `sections[${sectionIndex}][videos][${videoIndex}][title]`,
+        video.title
+      );
+      formData.append(
+        `sections[${sectionIndex}][videos][${videoIndex}][duration]`,
+        video.duration
+      );
     });
+  });
 
-    try {
-      const response = await fetch('/api/courses', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      setAllCourses([...allCourses, data]);
-      setShowAddForm(false);
-      setNewCourse({
-        name: '',
-        category: '',
-        description: '',
-        level: 'Beginner',
-        thumbnailFile: null,
-        sections: []
-      });
-    } catch (error) {
-      console.error('Error creating course:', error);
-    }
-  };
+  try {
+    const response = await fetch('/api/courses', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    setAllCourses([...allCourses, data]);
+    setShowAddForm(false);
+    setNewCourse({
+      name: '',
+      category: '',
+      description: '',
+      level: 'Beginner',
+      instructor: '',        // ✅ Reset
+      thumbnailUrl: '',      // ✅ Reset
+      sections: []
+    });
+  } catch (error) {
+    console.error('Error creating course:', error);
+  }
+};
+
 
   // Enrollment Management
   const handleEnrollCourse = async (courseId) => {
@@ -277,6 +281,31 @@ function App() {
                   />
                 </div>
                 <div className="form-group">
+  <label>Instructor Name*</label>
+  <input
+    type="text"
+    value={newCourse.instructor}
+    onChange={(e) => setNewCourse({...newCourse, instructor: e.target.value})}
+    placeholder="e.g. John Doe"
+    required
+  />
+</div>
+
+<div className="form-group">
+  <label>Thumbnail Image URL*</label>
+  <input
+  type="url"
+  value={newCourse.thumbnailUrl}
+  onChange={(e) => setNewCourse({ ...newCourse, thumbnailUrl: e.target.value })}
+  placeholder="Paste image URL ending in .jpg or .png"
+  pattern="https://.*\.(jpg|jpeg|png|webp)"
+  required
+/>
+
+</div>
+
+
+                <div className="form-group">
                   <label>Category*</label>
                   <input
                     type="text"
@@ -309,29 +338,7 @@ function App() {
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label>Thumbnail Image*</label>
-                  <div className="file-upload">
-                    <button 
-                      type="button"
-                      onClick={() => thumbnailInputRef.current.click()}
-                    >
-                      {newCourse.thumbnailFile ? newCourse.thumbnailFile.name : 'Choose Thumbnail'}
-                    </button>
-                    <input
-                      type="file"
-                      ref={thumbnailInputRef}
-                      onChange={(e) => setNewCourse({
-                        ...newCourse,
-                        thumbnailFile: e.target.files[0]
-                      })}
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      required
-                    />
-                  </div>
-                </div>
-
+                
                 <div className="form-group span-2">
                   <label>Course Sections & Videos</label>
                   <div className="sections-container">
@@ -449,14 +456,17 @@ function App() {
                       return (
                         <div key={`enrolled-${enrollment.id}`} className="enrolled-course-card">
                           <div className="course-media">
-                            <img 
-                              src={course.thumbnail} 
-                              alt={course.name}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "https://placehold.co/300x200?text=Course+Image";
-                              }}
-                            />
+                            <img
+  src={course.thumbnailUrl}
+  alt={course.name}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://placehold.co/300x200?text=No+Image';
+  }}
+  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }}
+/>
+
+                            
                             <div className="progress-container">
                               <div className="progress-bar">
                                 <div 
@@ -501,15 +511,16 @@ function App() {
                 {filteredCourses.map(course => (
                   <div key={`course-${course.id}`} className="course-card">
                     <div className="card-media">
-                      <img 
-                        src={course.thumbnail} 
-                        alt={course.name}
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "https://placehold.co/300x200?text=Course+Image";
-                        }}
-                      />
+                      <img
+  src={course.thumbnailUrl}
+  alt={course.name}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://placehold.co/300x200?text=No+Image';
+  }}
+  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }}
+/>
+
                       {isEnrolled(course.id) && (
                         <div className="enrolled-badge">Enrolled</div>
                       )}
