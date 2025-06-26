@@ -8,13 +8,16 @@ function App() {
   category: '',
   description: '',
   level: 'Beginner',
-  instructor: '', // ✅ new field
-  thumbnailUrl: '', // ✅ new field
+  instructor: '',
+  aboutInstructor: '',     // ✅ new
+  thumbnailUrl: '',
+  overallDuration: '',     // ✅ new
   sections: [{
     title: '',
-    videos: [{ title: '', videoUrl: '', duration: '' }]
+    videos: [{ title: '', videoUrl: '' }] // ❌ no duration here
   }]
 });
+
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
@@ -113,6 +116,9 @@ function App() {
   formData.append('level', newCourse.level);
   formData.append('instructor', newCourse.instructor); // ✅ Added instructor
   formData.append('thumbnailUrl', newCourse.thumbnailUrl); // ✅ Using URL instead of file
+  formData.append('aboutInstructor', newCourse.aboutInstructor); // ✅
+formData.append('overallDuration', newCourse.overallDuration); // ✅
+
 
   newCourse.sections.forEach((section, sectionIndex) => {
     formData.append(`sections[${sectionIndex}][title]`, section.title);
@@ -290,6 +296,17 @@ function App() {
     required
   />
 </div>
+<div className="form-group">
+  <label>Course Duration *</label>
+  <input
+    type="text"
+    value={newCourse.overallDuration}
+    onChange={(e) => setNewCourse({ ...newCourse, overallDuration: e.target.value })}
+    placeholder="e.g. 3.5hours"
+    required
+  />
+</div>
+
 
 <div className="form-group">
   <label>Thumbnail Image URL*</label>
@@ -337,7 +354,16 @@ function App() {
                     required
                   />
                 </div>
-                
+                <div className="form-group span-2">
+  <label>About Instructor*</label>
+  <textarea
+    value={newCourse.aboutInstructor}
+    onChange={(e) => setNewCourse({ ...newCourse, aboutInstructor: e.target.value })}
+    placeholder="Write a short bio or background of the instructor"
+    required
+  />
+</div>
+
                 
                 <div className="form-group span-2">
                   <label>Course Sections & Videos</label>
@@ -386,16 +412,7 @@ function App() {
                                   required
                                 />
                                 
-                                <input
-                                  type="text"
-                                  value={video.duration}
-                                  onChange={(e) => {
-                                    const updatedSections = [...newCourse.sections];
-                                    updatedSections[sectionIndex].videos[videoIndex].duration = e.target.value;
-                                    setNewCourse({...newCourse, sections: updatedSections});
-                                  }}
-                                  placeholder="Duration (e.g. 10:30)"
-                                />
+                      
                                 
                                 <button
                                   className="remove-video-btn"
@@ -528,7 +545,7 @@ function App() {
                     <div className="card-body">
                       <div className="course-meta">
                         <span className="category">{course.category || 'General'}</span>
-                        <span className="duration">{course.duration}</span>
+                        <span className="duration">{course.overallDuration}</span>
                       </div>
                       <h3>{course.name}</h3>
                       <p className="description">{course.description}</p>
@@ -591,7 +608,7 @@ function App() {
                         <h3>{course.name}</h3>
                         <div className="course-meta">
                           <span className="instructor">By {course.instructor}</span>
-                          <span className="duration">{course.duration}</span>
+                          <span className="duration">{course.overallDuration}</span> 
                           <span className="level">{course.level}</span>
                         </div>
                         <p className="description">{course.description}</p>

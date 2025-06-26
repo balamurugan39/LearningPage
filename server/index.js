@@ -31,7 +31,8 @@ app.get('/api/enrollments', (req, res) => {
 // ✅ Add new course (formData with instructor and thumbnailUrl)
 app.post('/api/courses', multer().none(), (req, res) => {
 
-  const { name, category, description, level, instructor, thumbnailUrl } = req.body;
+  const { name, category, description, level, instructor, thumbnailUrl, aboutInstructor, overallDuration } = req.body;
+
 
   // Extract sections
   const sections = [];
@@ -62,6 +63,8 @@ app.post('/api/courses', multer().none(), (req, res) => {
     description,
     level,
     instructor,
+    aboutInstructor,     // ✅ new
+  overallDuration,
     thumbnailUrl,
     views: 0,
     sections
